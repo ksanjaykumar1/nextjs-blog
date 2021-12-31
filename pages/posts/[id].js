@@ -1,5 +1,8 @@
 import Layout from "../../components/layout";
 import { getAllPostIds, getPostData } from "../../lib/post";
+import Head from "next/head";
+import Date from "../../components/date";
+import utilStyles from '../../styles/utils.module.css'
 
 // generating pages with dynamic routes 
 
@@ -7,16 +10,23 @@ import { getAllPostIds, getPostData } from "../../lib/post";
 export default function Post({postData}){
     return(
         <Layout>
-            {postData.title}
-            <br/>
-            {postData.id}
-            <br/>
-            {postData.date}
+            <Head>
+                <title>{postData.title}</title>
+            </Head>
+            <article>
+            <h1 className={utilStyles.headingXl}>{postData.title}</h1>
+        <div className={utilStyles.lightText}>
+          <Date dateString={postData.date} />
+        </div>
+        <div dangerouslySetInnerHTML={{ __html: postData.contentHtml }} />
+            </article>
         </Layout>
     )
 }
 
-// this returns arrat of possible values for id
+// Use `getStaticProps` to fetch a specific post given an ID and `getStaticPaths` to fetch all possible blog posts. 
+
+// this returns array of possible values for id
 export async function getStaticPaths(){
     const paths = getAllPostIds()
     return{
@@ -28,7 +38,7 @@ export async function getStaticPaths(){
 // The post page is now using the getPostData function in getStaticProps to get the post data and return it as props.
 // this component fetches necessary data for the post with id
 export async function getStaticProps({params}){
-    const postData = getPostData(params.id)
+    const postData = await getPostData(params.id)
     return{
         props: {
             postData
